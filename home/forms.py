@@ -17,13 +17,14 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput())
 
 class JobEntryForm(forms.ModelForm):
+    company = forms.CharField(widget=forms.TextInput(attrs={'size': '80'}))
     description = forms.CharField(widget=forms.TextInput(attrs={'size': '80'}))
     category = forms.ModelChoiceField(queryset=JobCategory.objects.all())
     status = forms.ModelChoiceField(queryset=JobStatus.objects.all())
     pdf_file = forms.FileField()
     class Meta():
         model = Job
-        fields = ('description', 'category', 'status')
+        fields = ('company','description', 'category', 'status')
 
 
 # ---------------------- Prasanna code
