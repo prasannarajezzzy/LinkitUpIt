@@ -31,6 +31,7 @@ class JobStatus(models.Model):
 class Job(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.CharField(max_length=128)
+    coverLetter = models.TextField(max_length=500)
     category = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
     status = models.ForeignKey(JobStatus, on_delete=models.CASCADE)
     

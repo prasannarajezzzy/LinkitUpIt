@@ -20,6 +20,7 @@ class JobEntryForm(forms.ModelForm):
     description = forms.CharField(widget=forms.TextInput(attrs={'size': '80'}))
     category = forms.ModelChoiceField(queryset=JobCategory.objects.all())
     status = forms.ModelChoiceField(queryset=JobStatus.objects.all())
+    pdf_file = forms.FileField()
     class Meta():
         model = Job
         fields = ('description', 'category', 'status')
