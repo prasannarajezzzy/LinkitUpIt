@@ -11,7 +11,7 @@ from home.models import Job, JobCategory, JobStatus
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 
-
+@login_required(login_url='/login/')
 def read_pdf(request):
     if request.method == "POST":
         prompt = "Write a cover letter based on Resume and job desccription 150 words strictly"
@@ -51,7 +51,7 @@ def read_pdf(request):
 
 
 
-
+@login_required(login_url='/login/')
 def index(request):
     context = {"var": "Prasanna"}
 
@@ -144,7 +144,7 @@ def user_logout(request):
     # Return to homepage.
     return redirect("/")
 
-
+@login_required(login_url='/login/')
 def jobs(request):
     if JobCategory.objects.count() == 0:
         JobCategory(category ="Full-Time").save()
@@ -225,7 +225,8 @@ def edit(request, id):
 		else:
 			#Cancel
 			return redirect("/jobs/") 
-                
+
+@login_required(login_url='/login/')             
 def delete_job(request, id):
     job = Job.objects.get(id=id)
     job.delete()
