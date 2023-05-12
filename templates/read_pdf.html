@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block title %} Home {% endblock title %} {% block body %}
+
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 mx-auto">
+        <h1>Read PDF</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+    
+            <div class="form-group">
+                <label for="desc-2"
+                  >Add a Job Description</label
+                >
+                <textarea
+                  class="form-control"
+                  id="desc-2"
+                  rows="3"
+                  name="desc-2"
+                ></textarea>
+              </div>
+    
+            <button type="submit" class="btn btn-success">Lets create a Cover Letter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  {% endblock body %}

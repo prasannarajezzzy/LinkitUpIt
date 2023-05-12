@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Job List</title>
+  {% load static %}
+  {% include "bootstrap.html" %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.3/css/dataTables.bootstrap4.min.css">
+  <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.3/js/dataTables.bootstrap4.min.js"></script>
+
+</head>
+
+<body>
+	<div>
+		<div class="jumbotron">
+			<h1 class="display-4">Job List Entries</h1>
+			{% if not table_data %}
+			<p class="lead">There are no job list entries to display.</p>
+			{% else %}
+			<table id="myTable" class="table table-striped table-bordered">
+				<thead>
+					<tr>
+						<th>Job Description</th>
+						<th>Job Category</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in table_data %}
+					<tr>
+						<td>{{ row.description }}</td>
+						<td>{{ row.category }}</td>
+						<td>{{ row.status }}</td>
+						<td>
+							<a class="btn btn-primary" href="/jobs/edit/{{ row.id }}/">Edit</a>
+							<a class="btn btn-danger" href="/jobs/delete/{{ row.id }}/">Delete</a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% endif %}
+			<div class="text-center">
+				<form method="GET" action="/jobs/add/">
+					<input type="submit" class="btn btn-primary" value = "Add New Entry">
+				</form>
+			</div>
+		</div>
+	</div>
+
+  <script>
+    $(document).ready(function() {
+      $('#myTable').DataTable({
+        "columns": [
+          { "data": "description" },
+          { "data": "category" },
+          { "data": "status" },
+          { "data": "edit" }
+        ]
+      });
+    });
+  </script>
+
+</body>
+</html> 
