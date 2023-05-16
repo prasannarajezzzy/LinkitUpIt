@@ -1,1 +1,1 @@
-web: gunicorn LinkitUp.wsgi:application --log-file
+web: gunicorn LinkitUp.wsgi --log-file -
