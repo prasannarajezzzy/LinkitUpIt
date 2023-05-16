@@ -4,6 +4,8 @@ from nltk.corpus import stopwords
 import openai
 import spacy
 import re
+import nltk
+nltk.download('stopwords')
 
 max_tokens = 1024
 model_engine = "text-davinci-003"
