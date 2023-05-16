@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-jwrg==1%8x%4q*i&q_c(hq27w5q%jh1-+_60ugw6y1@%g_-hoh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.vercel.app']
 
 ROOT_URLCONF = 'LinkitUp.urls'
 # Application definition
