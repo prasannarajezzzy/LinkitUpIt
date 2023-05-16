@@ -1,1 +1,1 @@
-web gunicorn LinkitUp.wsgi
+web: gunicorn LinkitUp.wsgi
