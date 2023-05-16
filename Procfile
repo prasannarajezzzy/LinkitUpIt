@@ -1,0 +1,1 @@
+web gunicorn LinkitUp.wsgi:application --log-file -

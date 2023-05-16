@@ -1,24 +1,39 @@
-{% extends 'base.html' %} {% block title %} Home {% endblock title %} {% block body %}
+{% extends 'base.html' %}
 
+{% block title %}
+  Home
+{% endblock title %}
+
+{% block body %}
 <div class="container-fluid px-0 mb-3"></div>
 <div class="container mb-3 py-4">
   <h1 class="text-center">Cover Letter</h1>
-  <div>{{cover_letter}}</div>
-  <br />
-  <button class="btn btn-primary" type="submit">
-    <a href="/pdf" style="color: white">Reset</a>
-  </button>
-  <br />
-  {% if keywords|length > 0 %}
-  <div>
-    <div>Add this keywords to resume for better chances</div>
-    {% for element in keywords %}
-    <li>{{ element }},</li>
+  {% comment %} <div class="d-flex align-items-center flex-column justify-content-center" style="min-height: 100vh;"> {% endcomment %}
+    <div>
+    {% for line in lines %}
+      <p>{{ line }}</p>
     {% endfor %}
+    </div>
+    <button class="btn btn-primary" type="submit">
+      <a href="/jobs" style="color: white">Back to Dashboard</a>
+    </button>
   </div>
+
+
+  <br /> 
+
+  {% comment %} {% if keywords|length > 0 %}
+    <div>
+      <div>Add these keywords to the resume for better chances:</div>
+      <ul>
+        {% for element in keywords %}
+          <li>{{ element }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   {% else %}
-  <p>My array is empty.</p>
-  {% endif %}
+    <p>No keywords found.</p>
+  {% endif %} {% endcomment %}
 </div>
 
 {% endblock body %}

@@ -4,12 +4,14 @@ from datetime import datetime
 from .forms import PdfUploadForm
 import PyPDF2
 from .api import resume_parse, getResponse, get_keywords
-
+import json
 from home.forms import JoinForm, LoginForm
 from home.forms import JobEntryForm
 from home.models import Job, JobCategory, JobStatus
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from urllib.parse import unquote
+
 
 @login_required(login_url='/login/')
 def read_pdf(request):
@@ -30,14 +32,15 @@ def read_pdf(request):
             print(job_desc)
             print(resume_text)
 
-            input_text = prompt + " Job Description :" + job_desc + "Resume : " + resume_text
+            input_text = prompt + " Job Description :" + \
+                job_desc + "Resume : " + resume_text
             print(input_text)
             job_matching_score = resume_parse(resume_text, job_desc)
-            print("score is ",job_matching_score)
+            print("score is ", job_matching_score)
             cover_letter_text = getResponse(input_text)
             print("All keywords")
             print(get_keywords(job_desc))
-            res_keywords=get_keywords(job_desc)
+            res_keywords = get_keywords(job_desc)
 
             return render(
                 request,
@@ -51,7 +54,6 @@ def read_pdf(request):
 
 
 
-@login_required(login_url='/login/')
 def index(request):
     context = {"var": "Prasanna"}
 
@@ -71,6 +73,22 @@ def about(request):
 
     if request.method == "POST":
         name = request.POST.get("name")
+        # email = request.POST.get("email")
+        # phone = request.POST.get("phone")
+        # desc = request.POST.get("desc")
+        # contact = Contact(
+        #     name=name, email=email, phone=phone, desc=desc, date=datetime.today()
+        # )
+        # contact.save()
+        # print("data is save")
+
+    return render(request, "about.html", context)
+
+
+def contact(request):
+    context = {"var": "Prasanna"}
+    if request.method == "POST":
+        name = request.POST.get("name")
         email = request.POST.get("email")
         phone = request.POST.get("phone")
         desc = request.POST.get("desc")
@@ -79,12 +97,7 @@ def about(request):
         )
         contact.save()
         print("data is save")
-
-    return render(request, "about.html", context)
-
-
-def contact(request):
-    return HttpResponse("this is contact")
+    return render(request, "contact.html", context)
 
 
 def join(request):
@@ -101,12 +114,13 @@ def join(request):
             return redirect("/")
         else:
             # Form invalid, print errors to console
-            page_data = { "join_form": join_form }
+            page_data = {"join_form": join_form}
             return render(request, 'core/join.html', page_data)
     else:
         join_form = JoinForm()
-        page_data = { "join_form": join_form }
+        page_data = {"join_form": join_form}
         return render(request, 'core/join.html', page_data)
+
 
 def user_login(request):
     if (request.method == 'POST'):
@@ -119,10 +133,10 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             # If we have a user
             if user:
-                #Check it the account is active
+                # Check it the account is active
                 if user.is_active:
                     # Log the user in.
-                    login(request,user)
+                    login(request, user)
                     # Send the user back to homepage
                     return redirect("/")
                 else:
@@ -130,10 +144,11 @@ def user_login(request):
                     return HttpResponse("Your account is not active.")
             else:
                 print("Someone tried to login and failed.")
-                print("They used username: {} and password: {}".format(username,password))
+                print("They used username: {} and password: {}".format(
+                    username, password))
                 return render(request, 'core/login.html', {"login_form": LoginForm})
     else:
-        #Nothing has been provided for username or password.
+        # Nothing has been provided for username or password.
         return render(request, 'core/login.html', {"login_form": LoginForm})
 
 
@@ -144,90 +159,148 @@ def user_logout(request):
     # Return to homepage.
     return redirect("/")
 
+
 @login_required(login_url='/login/')
 def jobs(request):
     if JobCategory.objects.count() == 0:
-        JobCategory(category ="Full-Time").save()
-        JobCategory(category ="Part-Time").save()
-        JobCategory(category ="Internship").save()
-        JobCategory(category ="On-Campus").save()
-        JobCategory(category ="Co-Op").save()
-        JobCategory(category ="Fellowship").save()
-        JobCategory(category ="Miscellaneous").save()
+        JobCategory(category="Full-Time").save()
+        JobCategory(category="Part-Time").save()
+        JobCategory(category="Internship").save()
+        JobCategory(category="On-Campus").save()
+        JobCategory(category="Co-Op").save()
+        JobCategory(category="Fellowship").save()
+        JobCategory(category="Miscellaneous").save()
     if JobStatus.objects.count() == 0:
-        JobStatus(status ="Applied").save()
-        JobStatus(status ="Not Applied").save()
-        JobStatus(status ="On Hold").save()
-        JobStatus(status ="Pending").save()
-        JobStatus(status ="Interviewing").save()
-        JobStatus(status ="Offer Accepted").save()
-        JobStatus(status ="Withdrawn").save()
+        JobStatus(status="Applied").save()
+        JobStatus(status="Not Applied").save()
+        JobStatus(status="On Hold").save()
+        JobStatus(status="Pending").save()
+        JobStatus(status="Interviewing").save()
+        JobStatus(status="Offer Accepted").save()
+        JobStatus(status="Withdrawn").save()
 
     if (request.method == "GET" and "delete" in request.GET):
         id = request.GET["delete"]
-		# print(id)
+        # print(id)
         Job.objects.filter(id=id).delete()
         return redirect("/jobs/")
     else:
         table_data = Job.objects.filter(user=request.user)
+        print("ssss",Job.objects.all())
         context = {
-                    "table_data": table_data
-		}
+            "table_data": table_data
+        }
+        for job in table_data:
+            job.suggested_keywords = job.suggested_keywords.replace(']',"")
+            job.suggested_keywords = job.suggested_keywords.replace('[',"")
+            job.suggested_keywords = job.suggested_keywords.replace('',"")
+            job.suggested_keywords = job.suggested_keywords.split(',')
+            print(type(job.suggested_keywords))
+            print((job.suggested_keywords))
         return render(request, 'jobs/jobs.html', context)
+
 
 @login_required(login_url='/login/')
 def add(request):
-	if (request.method == "POST"):
-		if ("add" in request.POST):
-			add_form = JobEntryForm(request.POST, files=request.FILES)
-			if (add_form.is_valid()):
-				job = add_form.save(commit=False)
-				job.user = request.user
-				job.save()
-				return redirect("/jobs/")
-			else:
-				context = {
+    if (request.method == "POST"):
+        if ("add" in request.POST):
+            add_form = JobEntryForm(
+                request.POST, files=request.FILES, request=request)
+            if (add_form.is_valid()):
+
+                job = add_form.save(commit=False)
+                job.user = request.user
+                job.save()
+                return redirect("/jobs/")
+            else:
+                context = {
                     "form_data": add_form
-				}
-				return render(request, 'jobs/add.html', context)
-		else:
-			# Cancel
-			return redirect("/jobs/")
-	else:
-		context = {
+                }
+                return render(request, 'jobs/add.html', context)
+        else:
+            # Cancel
+            return redirect("/jobs/")
+    else:
+        context = {
             "form_data": JobEntryForm()
-		}
-	return render(request, 'jobs/add.html', context)
-	
+        }
+    return render(request, 'jobs/add.html', context)
+
+
+# @login_required(login_url='/login/')
+# def edit(request, id):
+#     if request.method == "GET":
+#         # Load Job Entry Form with current model data.
+#         job = Job.objects.get(id=id)
+#         form = JobEntryForm(instance=job)
+#         context = {"form_data": form}
+#         return render(request, 'jobs/edit.html', context)
+#     elif request.method == "POST":
+#         # Process form submission
+#         if "edit" in request.POST:
+#             form = JobEntryForm(request.POST)
+#             if form.is_valid():
+#                 job = form.save(commit=False)
+#                 job.id = id
+#                 if request.user.is_authenticated:
+#                     job.user = request.user
+#                 job.save()
+#                 return redirect("/jobs/")
+#             else:
+#                 context = {"form_data": form}
+#                 return render(request, 'jobs/add.html', context)
+#         else:
+#             # Cancel
+#             return redirect("/jobs/")
+
+
 @login_required(login_url='/login/')
 def edit(request, id):
-	if (request.method == "GET"):
-		# Load Job Entry Form with current model data.
-		job = Job.objects.get(id=id)
-		form = JobEntryForm(instance=job)
-		context = {"form_data": form}
-		return render(request, 'jobs/edit.html', context)
-	elif (request.method == "POST"):
-		# Process form submission
-		if ("edit" in request.POST):
-			form = JobEntryForm(request.POST)
-			if (form.is_valid()):
-				job = form.save(commit=False)
-				job.user = request.user
-				job.id = id
-				job.save()
-				return redirect("/jobs/")
-			else:
-				context = {
+    print(id,"id")
+    if (request.method == "GET"):
+        # Load Job Entry Form with current model data.
+        job = Job.objects.get(id=id)
+        form = JobEntryForm(instance=job)
+        context = {"form_data": form}
+        return render(request, 'jobs/edit.html', context)
+    elif (request.method == "POST"):
+        # Process form submission
+        if ("edit" in request.POST):
+            form = JobEntryForm(request.POST)
+            if (form.is_valid()):
+                job = form.save(commit=False)
+                job.user = request.user
+                job.id = id
+                job.save()
+                return redirect("/jobs/")
+            else:
+                context = {
                     "form_data": form
-				}
-				return render(request, 'jobs/add.html', context)
-		else:
-			#Cancel
-			return redirect("/jobs/") 
+                }
+                return render(request, 'jobs/add.html', context)
+        else:
+            # Cancel
+            return redirect("/jobs/")
 
-@login_required(login_url='/login/')             
+
+@login_required(login_url='/login/')
 def delete_job(request, id):
     job = Job.objects.get(id=id)
     job.delete()
     return redirect("/jobs/")
+
+
+def my_view(request):
+    param_value = request.GET.get('param_name')
+    clear_text = unquote(param_value)
+    print("clear_text")
+    print(clear_text)
+    output_string = clear_text.replace(".", ".\n\n")
+    output_string = output_string.replace("]", "]\n")
+    lines = output_string.split(".")
+    return render(
+                request,
+                "coverLetter.html",
+                {"cover_letter": output_string, "keywords": ["res_keywords"],'lines': lines},
+            )
+    

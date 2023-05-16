@@ -3,10 +3,11 @@ from collections import defaultdict
 from nltk.corpus import stopwords
 import openai
 import spacy
+import re
 
 max_tokens = 1024
 model_engine = "text-davinci-003"
-
+openai.api_key = "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"
 
 def get_keywords(job_description):
 
@@ -55,7 +56,6 @@ def resume_parse(resume_text, job_description):
 
    
     resume_doc = nlp(resume_text)
-    print("datttttttttttttttttttttttttttttttt")
     print(resume_doc)
 
     candidate_name = None
@@ -119,3 +119,66 @@ def getResponse(prompt):
         presence_penalty=0,
     )
     return completion.choices[0].text
+
+
+
+def calculate_matching_score(job_description, resume):
+    # Convert both inputs to lowercase for case-insensitive matching
+    job_description = job_description.lower()
+    resume = resume.lower()
+
+    # Remove non-alphanumeric characters and split into individual words
+    job_description_words = re.findall(r'\w+', job_description)
+    resume_words = re.findall(r'\w+', resume)
+
+    # Calculate the matching score by counting the common words
+    common_words = set(job_description_words) & set(resume_words)
+    matching_score = len(common_words) / len(job_description_words) * 100
+
+    return matching_score
+
+def suggest_keywords(job_description, resume):
+    job_description = job_description.lower()
+    resume = resume.lower()
+
+    # Initialize a set of professional keywords for a software engineer
+    professional_keywords = {
+        'python',
+        'java',
+        'c++',
+        'javascript',
+        'web development',
+        'software development',
+        'object-oriented programming',
+        'algorithm',
+        'data structures',
+        'database',
+        'problem-solving',
+        'agile methodology',
+        'version control',
+        'debugging',
+        'testing',
+        'software architecture',
+        'framework',
+        'API',
+        'cloud computing',
+        'full-stack development',
+        'front-end development',
+        'back-end development',
+        'mobile app development',
+        'machine learning',
+        'data analysis',
+        'teamwork',
+        'communication',
+        'documentation'
+    }
+
+    # Remove non-alphanumeric characters and split job description into individual words
+    job_description_words = re.findall(r'\w+', job_description)
+
+    # Find professional keywords from job description that are missing in the resume
+    missing_keywords = [keyword for keyword in professional_keywords if keyword in job_description_words and keyword not in resume]
+
+    return missing_keywords
+
+
